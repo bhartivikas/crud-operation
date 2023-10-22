@@ -1,6 +1,5 @@
 package com.crudoperation.app.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,20 +40,21 @@ public class CustomerController {
 	@GetMapping
 	public ApiResponseDto<List<CustomerSaveResponseDto>> getAllCustomer() {
 		List<CustomerSaveResponseDto> customers = this.customerService.getAllCustomers();
-		
+
 		ApiResponseDto<List<CustomerSaveResponseDto>> apiResponseDto = new ApiResponseDto<>();
 		apiResponseDto.setMessage("All customers details fetched successfully");
 		apiResponseDto.setResponse(customers);
 		return apiResponseDto;
-		
+
 	}
-	
-	@PutMapping
-	public ApiResponseDto updateCustomerInfo(@PathVariable Long customerId, @RequestBody CustomerUpdateRequestDto customerUpdateRequestDto) {
-		
+
+	@PutMapping("/{customerId}")
+	public ApiResponseDto<String> updateCustomerInfo(@PathVariable Long customerId,
+			@RequestBody CustomerUpdateRequestDto customerUpdateRequestDto) {
+
 		this.customerService.updateCustomer(customerId, customerUpdateRequestDto);
-		
-		ApiResponseDto apiResponseDto = new ApiResponseDto<>();
+
+		ApiResponseDto<String> apiResponseDto = new ApiResponseDto<>();
 		apiResponseDto.setMessage("Customer updated successfully");
 		return apiResponseDto;
 	}

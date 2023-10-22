@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.crudoperation.app.dto.CustomerSaveRequestDto;
 import com.crudoperation.app.dto.CustomerSaveResponseDto;
@@ -30,7 +32,7 @@ public class CustomerServiceImpl implements CustomerService {
 		customerEntity.setFirstName(customerSaveRequestDto.getFirstName());
 		customerEntity.setLastName(customerSaveRequestDto.getLastName());
 		customerEntity.setGender(customerSaveRequestDto.getGender());
-		customerEntity.setGmail(customerSaveRequestDto.getGmail());
+		customerEntity.setEmail(customerSaveRequestDto.getEmail());
 		customerEntity.setMobile(customerSaveRequestDto.getMobile());
 
 		this.customerRepository.save(customerEntity);
@@ -40,7 +42,7 @@ public class CustomerServiceImpl implements CustomerService {
 		customerSaveResponseDto.setFirstName(customerEntity.getFirstName());
 		customerSaveResponseDto.setLastName(customerEntity.getLastName());
 		customerSaveResponseDto.setGender(customerEntity.getGender());
-		customerSaveResponseDto.setGmail(customerEntity.getGmail());
+		customerSaveResponseDto.setGmail(customerEntity.getEmail());
 		customerSaveResponseDto.setMobile(customerEntity.getMobile());
 		return customerSaveResponseDto;
 
@@ -58,7 +60,7 @@ public class CustomerServiceImpl implements CustomerService {
 			dto.setFirstName(customer.getFirstName());
 			dto.setLastName(customer.getLastName());
 			dto.setGender(customer.getGender());
-			dto.setGmail(customer.getGmail());
+			dto.setGmail(customer.getEmail());
 			dto.setMobile(customer.getMobile());
 
 			customerSaveResponseDtos.add(dto);
@@ -71,24 +73,39 @@ public class CustomerServiceImpl implements CustomerService {
 	public void updateCustomer(Long customerId, CustomerUpdateRequestDto customerUpdateRequestDto) {
 
 		Optional<Customer> optionalCustomer = this.customerRepository.findById(customerId);
-		
-		
-	
+
+		log.info("Optional<Customer>: {}, Customer Id: {}", optionalCustomer.orElse(null), customerId);
 
 		if (optionalCustomer.isPresent()) {
-			
 			Customer entity = optionalCustomer.get();
-			
-			entity.setFirstName(customerUpdateRequestDto.getFirstName());
-			entity.setLastName(customerUpdateRequestDto.getLastName());
-			entity.setMobile(customerUpdateRequestDto.getMobile());
-			
-			this.customerRepository.save(entity);
-			
-			
 
+			if (isNotBlank(customerUpdateRequestDto.getFirstName())) {
+				entity.setFirstName(customerUpdateRequestDto.getFirstName());
+			}
+
+			if (isNotBlank(customerUpdateRequestDto.getLastName())) {
+				entity.setLastName(customerUpdateRequestDto.getLastName());
+			}
+
+			if (isNotBlank(customerUpdateRequestDto.getMobile())) {
+				entity.setMobile(customerUpdateRequestDto.getMobile());
+			}
+
+			this.customerRepository.save(entity);
+		} else {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					String.format("Customer: %d not found", customerId));
 		}
 
+	}
+
+	private boolean isNotBlank(String text) {
+		 if(text != null && text.trim().length() > 0) {
+			return true;
+		}
+		 else {
+			 return false;
+		 }
 	}
 
 }

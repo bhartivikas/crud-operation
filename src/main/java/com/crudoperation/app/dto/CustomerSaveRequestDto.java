@@ -13,6 +13,6 @@ public class CustomerSaveRequestDto {
 	private String lastName;
 	private String mobile;
 	private Gender gender;
-	private String gmail;
+	private String email;
 
 }
